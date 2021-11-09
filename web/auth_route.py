@@ -1,8 +1,11 @@
-from flask import Blueprint, jsonify, make_response
+from flask import Blueprint
+
+from response_helper import successful_response
 
 auth = Blueprint("auth", __name__, url_prefix="/auth/")
 
 
 @auth.route("ping/", methods=["GET"])
 def ping():
-    return make_response(jsonify({"ping": "pong"}))
+    result = {"ping": "pong"}
+    return successful_response(result)
