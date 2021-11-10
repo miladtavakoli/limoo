@@ -38,6 +38,8 @@ class CustomJwt:
         return jwt_token[1]
 
     def _build_token(self) -> str:
+        # TODO:
+        #   read secret key from env
         secret_key = "SECRET_KEY"
         b_payload = self._convert_dict_to_b64(self.payload).encode("ascii")
         return hmac.new(secret_key.encode("ascii"), b_payload, hashlib.sha256).hexdigest()
