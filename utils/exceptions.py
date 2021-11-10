@@ -8,3 +8,7 @@ class JwtFormatException(JwtException):
 
 class JwtAuthorizationException(JwtException):
     pass
+
+
+class NotFoundException(Exception):
+    pass
