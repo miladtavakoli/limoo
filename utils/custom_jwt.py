@@ -51,11 +51,14 @@ class CustomJwt:
         }
         return
 
-    def _set_payload(self, user_id: int, expired_time: int) -> None:
+    def _set_payload(self, user_id: int, expired_time: int, refresh_token: bool) -> None:
         self.payload = {
             "user_id": user_id,
             "expired_at": self._calculate_expire_time(expired_time),
+
         }
+        if refresh_token:
+            self.payload["refresh_token"] = True
         return
 
     def _set_token(self) -> None:
@@ -66,23 +69,31 @@ class CustomJwt:
         token = self._build_token()
         return self.token == token
 
-    def create_jwt(self, user_id: int, expired_time: int = 300) -> str:
+    def _is_token_expired(self) -> bool:
+        return self.payload.get("expired_at") < datetime.now().timestamp()
+
+    def create_jwt(self, user_id: int, expired_time: int, refresh_token=False) -> str:
         self._set_header()
-        self._set_payload(user_id, expired_time)
+        self._set_payload(user_id, expired_time, refresh_token=refresh_token)
         self._set_token()
         return f"{self._convert_dict_to_b64(self.header)}." \
                f"{self._convert_dict_to_b64(self.payload)}." \
                f"{self.token}"
 
-    def verify_jwt(self, bearer_token):
+    def verify_jwt(self, bearer_token, refresh_token=False):
         jwt_token = self._get_token(bearer_token)
         jwt_token = jwt_token.split(".")
         if len(jwt_token) != 3:
-            raise JwtFormatException("JWT has not valid format.")
+            raise JwtFormatException("Jwt has not valid format.")
         b64_header, b64_payload, self.token = jwt_token
         self.payload = self._convert_b64_to_dict(b64_payload)
         if not self._is_valid_token():
-            raise JwtAuthorizationException("JWT is not valid.")
+            raise JwtAuthorizationException("Jwt is not valid.")
+        if self._is_token_expired:
+            raise JwtAuthorizationException("Jwt expired.")
+        if refresh_token:
+            if not self.payload.get("refresh_token", False):
+                raise JwtAuthorizationException("Refresh token is not valid")
         return True
 
 
@@ -93,5 +104,4 @@ def create_access_token(user_id: int, expired_time: int = 300) -> str:
 
 def create_refresh_token(user_id: int, expired_time: int = 3000) -> str:
     custom_jwt = CustomJwt()
-    return custom_jwt.create_jwt(user_id, expired_time)
-
+    return custom_jwt.create_jwt(user_id, expired_time, refresh_token=True)

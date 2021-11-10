@@ -1,5 +1,6 @@
-from flask import Flask
+from flask import Flask, jsonify
 
+from utils.exceptions import CustomException
 from web.auth_route import auth
 
 
@@ -10,3 +11,8 @@ def create_app():
     app.register_blueprint(auth)
 
     return app
+
+
+app = create_app()
+
+

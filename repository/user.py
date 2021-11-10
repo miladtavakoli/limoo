@@ -10,17 +10,23 @@ password = "MLDn00b2357"
 
 class UserRepository:
     @staticmethod
-    def find_one_user(phone_number: str):
+    def find_one_user_by_msisdn(msisdn: str):
         conn = pymssql.connect(server, user, password, "parsdata")
         cursor = conn.cursor(as_dict=True)
-        cursor.execute("""
-                    CREATE PROCEDURE FindUser @msisdn varchar(15)
-                    AS BEGIN
-                    SELECT * FROM parsdata.limoo.users u WHERE u.msisdn  = @msisdn;
-                    END
-                    """)
-        cursor.callproc('FindUser', (phone_number,))
+        cursor.callproc('FindUserByMsisdn', (msisdn,))
         r = [User.from_dict(r) for r in cursor]
         if len(r) < 1:
             raise NotFoundException("User not found.")
+        conn.close()
+        return r[0]
+
+    @staticmethod
+    def find_one_user_by_id(id: str):
+        conn = pymssql.connect(server, user, password, "parsdata")
+        cursor = conn.cursor(as_dict=True)
+        cursor.callproc('FindUserId', (id,))
+        r = [User.from_dict(r) for r in cursor]
+        if len(r) < 1:
+            raise NotFoundException("User not found.")
+        conn.close()
         return r[0]

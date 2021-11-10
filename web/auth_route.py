@@ -1,15 +1,45 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 
 from repository.user import UserRepository
 from use_case.auth_use_case import UserLoginUseCase
-from utils.response_helper import successful_response
+from utils.authorization import authorization, get_current_user
+from utils.exceptions import JwtException, ValidationException, JwtAuthorizationException, CustomException
+from utils.response_helper import successful_response, error_response
 
 auth = Blueprint("auth", __name__, url_prefix="/auth/")
 
 
-@auth.route("login/", methods=["GET"])
+@auth.route("login/", methods=["POST"])
 def login():
-    data = request.get_json(silent=True)
-    use_case = UserLoginUseCase(UserRepository())
-    result = use_case.execute(data)
+    try:
+        data = request.get_json(silent=True)
+        use_case = UserLoginUseCase(UserRepository())
+        result = use_case.execute(data)
+    except ValidationException as e:
+        return error_response(data=str(e), status_code=400)
+    except Exception:
+        return error_response(data=str(e), status_code=400)
     return successful_response(result)
+
+
+@auth.route("create-profile/", methods=["POST"])
+@authorization
+def create_profile():
+    try:
+        data = request.get_json(silent=True)
+        user = get_current_user()
+        use_case = UserLoginUseCase(UserRepository())
+        result = use_case.execute(data)
+    except JwtException as e:
+        return error_response(data=str(e), status_code=401)
+    except UnicodeDecodeError as e:
+        return error_response(data=str(e), status_code=400)
+    return successful_response(result)
+
+
+
+@auth.errorhandler(CustomException)
+def handle_invalid_usage(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
