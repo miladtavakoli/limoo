@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from response_helper import successful_response
+from utils.response_helper import successful_response
 
 auth = Blueprint("auth", __name__, url_prefix="/auth/")
 
