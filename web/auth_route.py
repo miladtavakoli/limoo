@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, g
 
 from repository.user import UserRepository
-from use_case.auth_use_case import UserLoginUseCase, CreateProfile, GetCurrentUserProfile
+from use_case.auth_use_case import UserLoginUseCase, CreateProfile, GetCurrentUserProfile, RefreshAccessToken
 from utils.authorization import authorization, get_current_user, authorization_refresh_token
 from utils.custom_jwt import create_access_token
 from utils.exceptions import JwtException, ValidationException, CustomException
@@ -31,7 +31,8 @@ def login():
 @auth.route("refresh-token/", methods=["GET"])
 @authorization_refresh_token
 def refresh_token():
-    result = {"access_token": create_access_token(g.user_id)}
+    use_case = RefreshAccessToken()
+    result = use_case.execute(g.user_id)
     return successful_response(result)
 
 
