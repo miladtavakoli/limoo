@@ -10,6 +10,13 @@ from utils.response_helper import successful_response, error_response
 auth = Blueprint("auth", __name__, url_prefix="/auth/")
 
 
+@auth.errorhandler(CustomException)
+def handle_invalid_usage(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
+
+
 @auth.route("login/", methods=["POST"])
 def login():
     try:
@@ -32,4 +39,3 @@ def create_profile():
     except JwtException as e:
         return error_response(data=str(e), status_code=401)
     return successful_response(result)
-
