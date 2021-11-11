@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 
 from repository.user import UserRepository
-from use_case.auth_use_case import UserLoginUseCase, CreateProfile
+from use_case.auth_use_case import UserLoginUseCase, CreateProfile, GetCurrentUserProfile
 from utils.authorization import authorization, get_current_user
 from utils.exceptions import JwtException, ValidationException, JwtAuthorizationException, CustomException, \
     LoginUnsuccessfulException
@@ -36,6 +36,18 @@ def create_profile():
         user = get_current_user()
         use_case = CreateProfile(UserRepository())
         result = use_case.execute(data, user)
+    except JwtException as e:
+        return error_response(data=str(e), status_code=401)
+    return successful_response(result)
+
+
+@auth.route("me/", methods=["GET"])
+@authorization
+def get_current_user_profile():
+    try:
+        user = get_current_user()
+        use_case = GetCurrentUserProfile()
+        result = use_case.execute(user)
     except JwtException as e:
         return error_response(data=str(e), status_code=401)
     return successful_response(result)

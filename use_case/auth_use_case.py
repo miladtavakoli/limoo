@@ -61,3 +61,8 @@ class CreateProfile:
         self.user_repo.update_first_name_last_name_by_id(user.id, user.first_name, user.last_name)
         result = {"profile": "created"}
         return result
+
+
+class GetCurrentUserProfile:
+    def execute(self, user):
+        return user.to_dict
