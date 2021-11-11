@@ -93,6 +93,9 @@ class CustomJwt:
         if refresh_token:
             if not self.payload.get("refresh_token", False):
                 raise JwtAuthorizationException("Jwt is not valid.")
+        else:
+            if self.payload.get("refresh_token", True):
+                raise JwtAuthorizationException("Jwt is not valid.")
         return True
 
 
