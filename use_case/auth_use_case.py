@@ -34,7 +34,7 @@ class UserLoginUseCase:
         return result
 
 
-class CreateProfile:
+class UpdateProfile:
     def __init__(self, user_repo):
         self.user_repo = user_repo
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, g
 
 from repository.user import UserRepository
-from use_case.auth_use_case import UserLoginUseCase, CreateProfile, GetCurrentUserProfile, RefreshAccessToken
+from use_case.auth_use_case import UserLoginUseCase, UpdateProfile, GetCurrentUserProfile, RefreshAccessToken
 from utils.authorization import authorization, get_current_user, authorization_refresh_token
 from utils.custom_jwt import create_access_token
 from utils.exceptions import JwtException, ValidationException, CustomException
@@ -36,13 +36,13 @@ def refresh_token():
     return successful_response(result)
 
 
-@auth.route("create-profile/", methods=["POST"])
+@auth.route("update-profile/", methods=["POST"])
 @authorization
 def create_profile():
     try:
         data = request.get_json(silent=True)
         user = get_current_user()
-        use_case = CreateProfile(UserRepository())
+        use_case = UpdateProfile(UserRepository())
         result = use_case.execute(data, user)
     except JwtException as e:
         return error_response(data=str(e), status_code=401)
