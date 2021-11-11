@@ -2,16 +2,17 @@ import pymssql
 
 from model.user import User
 from utils.exceptions import NotFoundException
-
-server = "localhost:1433"
-user = "SA"
-password = "MLDn00b2357"
+import config
+server = config.SQL_URL
+user = config.SQL_USERNAME
+password = config.SQL_PASSWORD
+database = "parsdata"
 
 
 class UserRepository:
     @staticmethod
     def find_one_user_by_msisdn(msisdn: str):
-        conn = pymssql.connect(server, user, password, "parsdata")
+        conn = pymssql.connect(config.SQL_URL, config.SQL_USERNAME, config.SQL_PASSWORD, config.SQL_DATABASE)
         cursor = conn.cursor(as_dict=True)
         cursor.callproc('limoo.find_user_by_msisdn', (msisdn,))
         r = [User.from_dict(r) for r in cursor]
@@ -22,7 +23,7 @@ class UserRepository:
 
     @staticmethod
     def find_one_user_by_id(id: int):
-        conn = pymssql.connect(server, user, password, "parsdata")
+        conn = pymssql.connect(config.SQL_URL, config.SQL_USERNAME, config.SQL_PASSWORD, config.SQL_DATABASE)
         cursor = conn.cursor(as_dict=True)
         cursor.callproc('limoo.find_user_by_id', (id,))
         r = [User.from_dict(r) for r in cursor]
@@ -33,10 +34,9 @@ class UserRepository:
 
     @staticmethod
     def update_first_name_last_name_by_id(id: int, first_name: str = None, last_name: str = None):
-        conn = pymssql.connect(server, user, password, "parsdata")
+        conn = pymssql.connect(config.SQL_URL, config.SQL_USERNAME, config.SQL_PASSWORD, config.SQL_DATABASE)
         cursor = conn.cursor(as_dict=True)
         cursor.callproc('limoo.update_first_name_last_name_by_id', (id, first_name, last_name))
         conn.commit()
         conn.close()
         return
-

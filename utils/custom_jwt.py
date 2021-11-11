@@ -4,6 +4,7 @@ import hashlib
 import json
 from datetime import datetime, timedelta
 
+from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRED, JWT_REFRESH_TOKEN_EXPIRED
 from utils.exceptions import JwtFormatException, JwtAuthorizationException
 
 
@@ -38,9 +39,7 @@ class CustomJwt:
         return jwt_token[1]
 
     def _build_token(self) -> str:
-        # TODO:
-        #   read secret key from env
-        secret_key = "SECRET_KEY"
+        secret_key = JWT_SECRET_KEY
         b_payload = self._convert_dict_to_b64(self.payload).encode("ascii")
         return hmac.new(secret_key.encode("ascii"), b_payload, hashlib.sha256).hexdigest()
 
@@ -91,14 +90,17 @@ class CustomJwt:
             raise JwtAuthorizationException("Jwt is not valid.")
         if self._is_token_expired():
             raise JwtAuthorizationException("Jwt expired.")
+        if refresh_token:
+            if not self.payload.get("refresh_token", False):
+                raise JwtAuthorizationException("Jwt is not valid.")
         return True
 
 
-def create_access_token(user_id: int, expired_time: int = 3000) -> str:
+def create_access_token(user_id: int) -> str:
     custom_jwt = CustomJwt()
-    return custom_jwt.create_jwt(user_id, expired_time=expired_time)
+    return custom_jwt.create_jwt(user_id, expired_time=JWT_ACCESS_TOKEN_EXPIRED)
 
 
-def create_refresh_token(user_id: int, expired_time: int = 3000) -> str:
+def create_refresh_token(user_id: int) -> str:
     custom_jwt = CustomJwt()
-    return custom_jwt.create_jwt(user_id, expired_time, refresh_token=True)
+    return custom_jwt.create_jwt(user_id, expired_time=JWT_REFRESH_TOKEN_EXPIRED, refresh_token=True)
