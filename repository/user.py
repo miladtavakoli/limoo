@@ -3,10 +3,6 @@ import pymssql
 from model.user import User
 from utils.exceptions import NotFoundException
 import config
-server = config.SQL_URL
-user = config.SQL_USERNAME
-password = config.SQL_PASSWORD
-database = "parsdata"
 
 
 class UserRepository:
