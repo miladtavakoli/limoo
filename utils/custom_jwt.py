@@ -89,7 +89,7 @@ class CustomJwt:
         self.payload = self._convert_b64_to_dict(b64_payload)
         if not self._is_valid_token():
             raise JwtAuthorizationException("Jwt is not valid.")
-        if self._is_token_expired:
+        if self._is_token_expired():
             raise JwtAuthorizationException("Jwt expired.")
         if refresh_token:
             if not self.payload.get("refresh_token", False):
@@ -97,9 +97,9 @@ class CustomJwt:
         return True
 
 
-def create_access_token(user_id: int, expired_time: int = 300) -> str:
+def create_access_token(user_id: int, expired_time: int = 3000) -> str:
     custom_jwt = CustomJwt()
-    return custom_jwt.create_jwt(user_id, expired_time)
+    return custom_jwt.create_jwt(user_id, expired_time=expired_time)
 
 
 def create_refresh_token(user_id: int, expired_time: int = 3000) -> str:

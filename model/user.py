@@ -1,9 +1,11 @@
 class User:
-    def __init__(self, id, msisdn, created_at, last_login):
+    def __init__(self, id=None, msisdn=None, created_at=None, first_name=None, last_name=None, avatar=None):
         self.id = id
         self.msisdn = msisdn
         self.created_at = created_at
-        self.last_login = last_login
+        self.first_name = first_name
+        self.last_name = last_name
+        self.avatar = avatar
 
     @classmethod
     def from_dict(cls, input_dict):
@@ -15,7 +17,9 @@ class User:
             "id": self.id,
             "msisdn": self.msisdn,
             "created_at": self.created_at,
-            "last_login": self.last_login,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "avatar": self.avatar,
         }
 
     def __repr__(self):

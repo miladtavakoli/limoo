@@ -35,3 +35,8 @@ class NotFoundException(Exception):
 class ValidationException(CustomException):
     def __init__(self, message="Check you`r inputs.Try again."):
         CustomException.__init__(self, message, status_code=400)
+
+
+class LoginUnsuccessfulException(CustomException):
+    def __init__(self, message="Login unsuccessful, check your inputs try again"):
+        CustomException.__init__(self, message, status_code=400)
