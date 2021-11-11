@@ -1,8 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 
 from repository.user import UserRepository
-from use_case.auth_use_case import UserLoginUseCase, CreateProfile, GetCurrentUserProfile
+from use_case.auth_use_case import UserLoginUseCase, CreateProfile, GetCurrentUserProfile, RefreshAccessToken
 from utils.authorization import authorization, get_current_user
+from utils.custom_jwt import create_access_token
 from utils.exceptions import JwtException, ValidationException, JwtAuthorizationException, CustomException, \
     LoginUnsuccessfulException
 from utils.response_helper import successful_response, error_response
@@ -25,6 +26,13 @@ def login():
         result = use_case.execute(data)
     except ValidationException as e:
         return error_response(data=str(e), status_code=400)
+    return successful_response(result)
+
+
+@auth.route("refresh-token/", methods=["POST"])
+@authorization
+def refresh_token():
+    result = {"access_token": create_access_token(g.user_id)}
     return successful_response(result)
 
 

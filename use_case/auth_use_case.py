@@ -27,8 +27,8 @@ class UserLoginUseCase:
         except NotFoundException as e:
             raise LoginUnsuccessfulException
         result = {
-            "access_token": create_access_token(user.id, expired_time=3000),
-            "refresh_token": create_refresh_token(user.id, expired_time=3000),
+            "access_token": create_access_token(user.id),
+            "refresh_token": create_refresh_token(user.id),
         }
         return result
 
@@ -64,5 +64,12 @@ class CreateProfile:
 
 
 class GetCurrentUserProfile:
-    def execute(self, user):
+    @staticmethod
+    def execute(user):
         return user.to_dict
+
+
+class RefreshAccessToken:
+    @staticmethod
+    def execute(user_id):
+        return {"access_token": create_access_token(user_id)}

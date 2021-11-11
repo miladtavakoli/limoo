@@ -22,6 +22,5 @@ def authorization(f):
 
 def get_current_user():
     u_r = UserRepository()
-    print(g.user_id)
     user = u_r.find_one_user_by_id(g.user_id)
     return user
